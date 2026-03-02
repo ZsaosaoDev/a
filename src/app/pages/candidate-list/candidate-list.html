@@ -1,0 +1,50 @@
+<div class="layout">
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Managers</th>
+        <th>Users</th>
+        <th>Departments</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let staff of staffList">
+        <td>{{ staff.name }}</td>
+
+        <td>
+          <ul>
+            <li *ngFor="let m of staff.managers">
+              {{ m.name }}
+            </li>
+          </ul>
+        </td>
+
+        <td>
+          <ul>
+            <li *ngFor="let u of staff.users">
+              {{ u.name }}
+            </li>
+          </ul>
+        </td>
+
+        <td>
+          <ul>
+            <li *ngFor="let d of staff.departments">
+              {{ d.name }}
+            </li>
+          </ul>
+        </td>
+
+        <td>
+          <button (click)="viewDetail(staff.id)">View Detail</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<app-staff-sidebar *ngIf="selectedStaffId" [staffId]="selectedStaffId" (close)="closeDetail()">
+</app-staff-sidebar>

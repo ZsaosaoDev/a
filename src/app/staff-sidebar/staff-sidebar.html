@@ -1,0 +1,50 @@
+<div class="sidebar-wrapper" [class.is-closing]="isClosing">
+  <div class="overlay" (click)="onClose()"></div>
+
+  <div class="sidebar-container">
+    <div class="sidebar-header">
+      <h2 style="margin: 0; font-size: 1.2rem">Chi tiết nhân viên</h2>
+      <button class="close-btn" (click)="onClose()">&times;</button>
+    </div>
+
+    <div class="sidebar-body">
+      <div *ngIf="loading" class="loading">
+        <p>Đang tải dữ liệu nhân viên...</p>
+      </div>
+
+      <div *ngIf="!loading && staff">
+        <div class="section">
+          <h3>Họ và tên</h3>
+          <p>
+            <strong>{{ staff.name }}</strong>
+          </p>
+        </div>
+
+        <div class="section" *ngIf="staff.managers?.length">
+          <h3>Quản lý trực tiếp</h3>
+          <ul>
+            <li *ngFor="let m of staff.managers">{{ m.name }}</li>
+          </ul>
+        </div>
+
+        <div class="section" *ngIf="staff.departments?.length">
+          <h3>Phòng ban được sài</h3>
+          <ul>
+            <li *ngFor="let d of staff.departments">{{ d.name }}</li>
+          </ul>
+        </div>
+
+        <div class="section" *ngIf="staff.users?.length">
+          <h3>Người dùng được sà<i></i></h3>
+          <ul>
+            <li *ngFor="let u of staff.users">{{ u.name }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div *ngIf="!loading && !staff" class="loading">
+        <p>Không tìm thấy thông tin nhân viên này.</p>
+      </div>
+    </div>
+  </div>
+</div>
