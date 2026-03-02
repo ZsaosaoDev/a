@@ -3,47 +3,117 @@
 
   <div class="sidebar-container">
     <div class="sidebar-header">
-      <h2 style="margin: 0; font-size: 1.2rem">Chi tiết nhân viên</h2>
+      <h2 style="margin: 0; font-size: 1.25rem; font-weight: 600">Thông tin nhân viên</h2>
       <button class="close-btn" (click)="onClose()">&times;</button>
     </div>
 
     <div class="sidebar-body">
-      <div *ngIf="loading" class="loading">
-        <p>Đang tải dữ liệu nhân viên...</p>
+      <div *ngIf="loading" style="text-align: center; color: #999; padding: 20px">
+        Đang tải dữ liệu...
       </div>
 
       <div *ngIf="!loading && staff">
         <div class="section">
           <h3>Họ và tên</h3>
-          <p>
+          <p style="margin-top: 8px; font-size: 1.1rem">
             <strong>{{ staff.name }}</strong>
           </p>
         </div>
 
-        <div class="section" *ngIf="staff.managers?.length">
-          <h3>Quản lý trực tiếp</h3>
-          <ul>
-            <li *ngFor="let m of staff.managers">{{ m.name }}</li>
-          </ul>
+        <div class="section">
+          <div class="section-header">
+            <h3>Quản lý trực tiếp</h3>
+            <div class="popup-container">
+              <button
+                class="add-btn"
+                (click)="showManagerPopup = !showManagerPopup; showUserPopup = false"
+              >
+                + Thêm
+              </button>
+
+              <div class="custom-popup" *ngIf="showManagerPopup">
+                <div class="search-input">
+                  <input
+                    type="text"
+                    [(ngModel)]="searchText"
+                    placeholder="Tìm tên hoặc ID..."
+                    (click)="$event.stopPropagation()"
+                  />
+                </div>
+                <div class="popup-list">
+                  <div
+                    class="popup-item"
+                    *ngFor="let user of filteredUsers"
+                    (click)="addManager(user)"
+                  >
+                    {{ user.name }} <span style="color: #ccc; font-size: 11px">#{{ user.id }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="data-list">
+            <div class="list-item" *ngFor="let m of staff.managers">
+              <span>{{ m.name }}</span>
+              <span class="remove-icon" (click)="removeItem('managers', m.id)">&times;</span>
+            </div>
+          </div>
         </div>
 
-        <div class="section" *ngIf="staff.departments?.length">
+        <div class="section">
           <h3>Phòng ban được sài</h3>
-          <ul>
-            <li *ngFor="let d of staff.departments">{{ d.name }}</li>
-          </ul>
+          <div class="data-list">
+            <div class="list-item" *ngFor="let d of staff.departments">
+              <span>{{ d.name }}</span>
+            </div>
+          </div>
         </div>
 
-        <div class="section" *ngIf="staff.users?.length">
-          <h3>Người dùng được sà<i></i></h3>
-          <ul>
-            <li *ngFor="let u of staff.users">{{ u.name }}</li>
-          </ul>
+        <div class="section">
+          <div class="section-header">
+            <h3>Người dùng được sài</h3>
+            <div class="popup-container">
+              <button
+                class="add-btn"
+                (click)="showUserPopup = !showUserPopup; showManagerPopup = false"
+              >
+                + Thêm
+              </button>
+
+              <div class="custom-popup" *ngIf="showUserPopup">
+                <div class="search-input">
+                  <input
+                    type="text"
+                    [(ngModel)]="searchText"
+                    placeholder="Tìm người dùng..."
+                    (click)="$event.stopPropagation()"
+                  />
+                </div>
+                <div class="popup-list">
+                  <div
+                    class="popup-item"
+                    *ngFor="let user of filteredUsers"
+                    (click)="addUser(user)"
+                  >
+                    {{ user.name }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="data-list">
+            <div class="list-item" *ngFor="let u of staff.users">
+              <span>{{ u.name }}</span>
+              <span class="remove-icon" (click)="removeItem('users', u.id)">&times;</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div *ngIf="!loading && !staff" class="loading">
-        <p>Không tìm thấy thông tin nhân viên này.</p>
+      <div *ngIf="!loading && !staff" style="text-align: center; color: #ff4d4f">
+        Dữ liệu không tồn tại.
       </div>
     </div>
   </div>

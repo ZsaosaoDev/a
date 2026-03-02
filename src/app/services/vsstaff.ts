@@ -1,12 +1,22 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
-import { VSStaff } from '../models/vsstaff';
+import { VSStaff, User } from '../models/vsstaff';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Vsstaff {
+  private allUsers: User[] = [
+    { id: 1, name: 'Nguyễn Văn A ' },
+    { id: 2, name: 'Trần Thị B ' },
+    { id: 3, name: 'Lê Văn C' },
+    { id: 4, name: 'Phạm Thị D' },
+    { id: 5, name: 'Hoàng Văn E' },
+    { id: 6, name: 'Đặng Thị F' },
+    { id: 7, name: 'Bùi Văn G' },
+  ];
+
   private fakeData: VSStaff[] = [
     {
       id: 1,
@@ -40,5 +50,9 @@ export class Vsstaff {
   getById(id: number): Observable<VSStaff | undefined> {
     const result = this.fakeData.find((x) => x.id === id);
     return of(result);
+  }
+
+  getAvailableUsers(): Observable<User[]> {
+    return of(this.allUsers);
   }
 }
