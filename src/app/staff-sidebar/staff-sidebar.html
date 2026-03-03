@@ -3,118 +3,129 @@
 
   <div class="sidebar-container">
     <div class="sidebar-header">
-      <h2 style="margin: 0; font-size: 1.25rem; font-weight: 600">Thông tin nhân viên</h2>
+      <h2 style="margin: 0; font-size: 1.25rem">Thông tin nhân viên</h2>
       <button class="close-btn" (click)="onClose()">&times;</button>
     </div>
 
     <div class="sidebar-body">
-      <div *ngIf="loading" style="text-align: center; color: #999; padding: 20px">
-        Đang tải dữ liệu...
-      </div>
+      <div *ngIf="loading" style="text-align: center; padding: 20px">Đang tải...</div>
 
       <div *ngIf="!loading && staff">
-        <div class="section">
+        <div class="section" *ngIf="!showManagerPopup && !showUserPopup && !showDeptPopup">
           <h3>Họ và tên</h3>
-          <p style="margin-top: 8px; font-size: 1.1rem">
+          <p style="font-size: 1.1rem; margin-top: 8px">
             <strong>{{ staff.name }}</strong>
           </p>
         </div>
 
-        <div class="section">
+        <div class="section popup-mode" *ngIf="showManagerPopup || showUserPopup">
           <div class="section-header">
-            <h3>Quản lý trực tiếp</h3>
-            <div class="popup-container">
+            <h3>Chọn {{ showManagerPopup ? 'Quản lý' : 'Người dùng' }}</h3>
+            <div class="btn-group">
               <button
-                class="add-btn"
-                (click)="showManagerPopup = !showManagerPopup; showUserPopup = false"
+                class="btn-ok"
+                (click)="confirmSelection(showManagerPopup ? 'managers' : 'users')"
               >
-                + Thêm
+                Xác nhận
               </button>
-
-              <div class="custom-popup" *ngIf="showManagerPopup">
-                <div class="search-input">
-                  <input
-                    type="text"
-                    [(ngModel)]="searchText"
-                    placeholder="Tìm tên hoặc ID..."
-                    (click)="$event.stopPropagation()"
-                  />
-                </div>
-                <div class="popup-list">
-                  <div
-                    class="popup-item"
-                    *ngFor="let user of filteredUsers"
-                    (click)="addManager(user)"
-                  >
-                    {{ user.name }} <span style="color: #ccc; font-size: 11px">#{{ user.id }}</span>
-                  </div>
-                </div>
+              <button class="btn-cancel" (click)="closeAllPopups()">Hủy</button>
+            </div>
+          </div>
+          <div class="edit-mode-container">
+            <div class="filter-bar">
+              <input
+                type="text"
+                [(ngModel)]="searchText"
+                placeholder="Tìm kiếm..."
+                class="search-box"
+                style="flex: 1"
+                autofocus
+              />
+              <label class="select-all-label">
+                <input type="checkbox" [checked]="isAllSelected" (change)="toggleSelectAll()" />
+                Chọn tất cả
+              </label>
+            </div>
+            <div class="selection-list">
+              <div
+                class="selection-item"
+                *ngFor="let user of filteredUsers"
+                (click)="toggleSelection(user.id)"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="tempSelectedIds.has(user.id)"
+                  (click)="$event.stopPropagation()"
+                />
+                <span
+                  >{{ user.name }} <small>#{{ user.id }}</small></span
+                >
               </div>
             </div>
           </div>
-
-          <div class="data-list">
-            <div class="list-item" *ngFor="let m of staff.managers">
-              <span>{{ m.name }}</span>
-              <span class="remove-icon" (click)="removeItem('managers', m.id)">&times;</span>
-            </div>
-          </div>
         </div>
 
-        <div class="section">
-          <h3>Phòng ban được sài</h3>
-          <div class="data-list">
-            <div class="list-item" *ngFor="let d of staff.departments">
-              <span>{{ d.name }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="section">
+        <div class="section popup-mode" *ngIf="showDeptPopup">
           <div class="section-header">
-            <h3>Người dùng được sài</h3>
-            <div class="popup-container">
-              <button
-                class="add-btn"
-                (click)="showUserPopup = !showUserPopup; showManagerPopup = false"
-              >
-                + Thêm
-              </button>
+            <h3>Chọn phòng ban</h3>
+            <div class="btn-group">
+              <button class="btn-ok" (click)="confirmSelection('departments')">Xác nhận</button>
+              <button class="btn-cancel" (click)="closeAllPopups()">Hủy</button>
+            </div>
+          </div>
+          <div class="edit-mode-container">
+            <div class="filter-bar">
+              <span style="font-size: 13px; font-weight: bold">Cấu trúc tổ chức</span>
+              <label class="select-all-label">
+                <input
+                  type="checkbox"
+                  [checked]="isAllDeptsSelected"
+                  (change)="toggleSelectAllDepts()"
+                />
+                Chọn tất cả cây
+              </label>
+            </div>
+            <div class="tree-wrapper">
+              <ng-container
+                *ngTemplateOutlet="recursiveTree; context: { $implicit: allDepartments }"
+              ></ng-container>
+            </div>
+          </div>
+        </div>
 
-              <div class="custom-popup" *ngIf="showUserPopup">
-                <div class="search-input">
-                  <input
-                    type="text"
-                    [(ngModel)]="searchText"
-                    placeholder="Tìm người dùng..."
-                    (click)="$event.stopPropagation()"
-                  />
-                </div>
-                <div class="popup-list">
-                  <div
-                    class="popup-item"
-                    *ngFor="let user of filteredUsers"
-                    (click)="addUser(user)"
-                  >
-                    {{ user.name }}
-                  </div>
-                </div>
+        <ng-container *ngIf="!showManagerPopup && !showUserPopup && !showDeptPopup">
+          <div class="section" *ngFor="let sec of sectionTypes">
+            <div class="section-header">
+              <h3>{{ sec.label }}</h3>
+              <button class="add-btn" (click)="openPopup(sec.popup)">+ Thêm</button>
+            </div>
+            <div class="data-list">
+              <div class="list-item" *ngFor="let item of staff[sec.key]">
+                <span>{{ item.name }}</span>
+                <span class="remove-icon" (click)="removeItem(sec.key, item.id)">&times;</span>
               </div>
             </div>
           </div>
-
-          <div class="data-list">
-            <div class="list-item" *ngFor="let u of staff.users">
-              <span>{{ u.name }}</span>
-              <span class="remove-icon" (click)="removeItem('users', u.id)">&times;</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div *ngIf="!loading && !staff" style="text-align: center; color: #ff4d4f">
-        Dữ liệu không tồn tại.
+        </ng-container>
       </div>
     </div>
   </div>
 </div>
+
+<ng-template #recursiveTree let-list>
+  <div *ngFor="let node of list" class="tree-node">
+    <div class="node-label" (click)="toggleSelection(node.id)">
+      <input
+        type="checkbox"
+        [checked]="tempSelectedIds.has(node.id)"
+        (click)="$event.stopPropagation()"
+      />
+      <span style="margin-right: 8px">📂</span> {{ node.name }}
+    </div>
+    <div class="node-children" *ngIf="node.children?.length">
+      <ng-container
+        *ngTemplateOutlet="recursiveTree; context: { $implicit: node.children }"
+      ></ng-container>
+    </div>
+  </div>
+</ng-template>

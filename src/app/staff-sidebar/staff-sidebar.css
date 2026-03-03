@@ -172,3 +172,167 @@
   cursor: pointer;
   color: #bfbfbf;
 }
+
+/* Container bao bọc cây */
+.tree-wrapper {
+  margin-top: 10px;
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  padding: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Từng node */
+.tree-node {
+  position: relative;
+  list-style: none;
+}
+
+/* Quan trọng: Thụt lề cho các nhánh con */
+.node-children {
+  padding-left: 24px; /* Khoảng cách thụt lề mỗi cấp */
+  border-left: 1px dashed #d9d9d9; /* Đường kẻ dọc mờ để dễ nhìn nhánh */
+  margin-left: 8px; /* Căn chỉnh đường kẻ */
+}
+
+/* Định dạng nhãn phòng ban */
+.node-label {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.node-label:hover {
+  background-color: #f5f5f5;
+  color: #1890ff;
+}
+
+/* Icon thư mục */
+.folder-icon {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+/* CSS cho chế độ tìm kiếm */
+.node-label[hidden] {
+  display: none !important;
+}
+
+/* Layout chung cho vùng chọn */
+.filter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 10px;
+}
+
+.select-all-label {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: #007bff;
+  white-space: nowrap;
+}
+
+/* Tùy chỉnh Checkbox */
+input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #007bff; /* Đổi màu checkbox sang xanh dương */
+  margin-right: 8px;
+}
+
+/* Danh sách người dùng */
+.selection-list {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 6px;
+}
+
+.selection-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid #f9f9f9;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.selection-item:hover {
+  background-color: #f0f7ff;
+}
+
+.selection-item small {
+  color: #999;
+  margin-left: 5px;
+}
+
+/* Nút bấm OK và Hủy */
+.btn-group {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-ok {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 6px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-ok:hover {
+  background-color: #218838;
+}
+
+.btn-cancel {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 6px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Cấu trúc cây (Tree) */
+.tree-node {
+  margin-left: 15px;
+}
+
+.node-label {
+  display: flex;
+  align-items: center;
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+.node-label:hover {
+  color: #007bff;
+}
+
+.node-children {
+  border-left: 1px dashed #ddd;
+  padding-left: 10px;
+}
+
+/* Style cho Sidebar (nếu chưa có) */
+.popup-mode {
+  background: #fdfdfd;
+  border: 1px solid #e0e0e0;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}

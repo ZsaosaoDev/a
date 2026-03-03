@@ -6,6 +6,7 @@ export interface User {
 export interface Department {
   id: number;
   name: string;
+  children?: Department[];
 }
 
 export interface VSStaff {
