@@ -171,4 +171,20 @@ export class StaffSidebarComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
+
+  expandedIds = new Set<number>();
+
+  // Hàm xử lý đóng/mở
+  toggleExpand(id: number) {
+    if (this.expandedIds.has(id)) {
+      this.expandedIds.delete(id);
+    } else {
+      this.expandedIds.add(id);
+    }
+  }
+
+  // Hàm kiểm tra trạng thái (dùng cho HTML)
+  isExpanded(id: number): boolean {
+    return this.expandedIds.has(id);
+  }
 }
