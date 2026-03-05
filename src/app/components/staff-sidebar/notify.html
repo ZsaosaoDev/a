@@ -1,0 +1,13 @@
+<div class="container" style="padding: 20px">
+  <button (click)="showToast('Xin chào! Dòng chữ này sẽ biến mất sau 2s.')">
+    Ấn để hiện thông báo
+  </button>
+
+  <div
+    *ngIf="showToastVisible"
+    class="toast-text"
+    style="margin-top: 10px; color: green; font-weight: bold"
+  >
+    {{ toastMessage }}
+  </div>
+</div>

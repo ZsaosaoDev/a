@@ -4,14 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { VSStaff, User, Department } from '../models/vsstaff';
 import { Vsstaff } from '../services/vsstaff';
 import { Subscription } from 'rxjs';
+import { DepartmentTreeComponent } from '../components/department-tree/department-tree';
 
-// Định nghĩa kiểu dữ liệu cho danh sách section
 type StaffListType = 'managers' | 'departments' | 'users';
 
 @Component({
   selector: 'app-staff-sidebar',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DepartmentTreeComponent],
   templateUrl: './staff-sidebar.html',
   styleUrls: ['./staff-sidebar.css'],
 })
@@ -31,7 +31,8 @@ export class StaffSidebarComponent implements OnInit, OnDestroy {
   tempSelectedIds = new Set<number>();
   private subscription = new Subscription();
 
-  // Khai báo danh sách các mục hiển thị để HTML loop qua mà không lỗi type
+  private toastTimer: any;
+
   readonly sectionTypes: {
     key: StaffListType;
     label: string;
@@ -135,6 +136,7 @@ export class StaffSidebarComponent implements OnInit, OnDestroy {
       const flatDepts = this.flattenDepts(this.allDepartments);
       this.staff.departments = flatDepts.filter((d) => this.tempSelectedIds.has(d.id));
     }
+    this.showToast('Cập nhật thành công ✅');
     this.closeAllPopups();
   }
 
@@ -170,21 +172,35 @@ export class StaffSidebarComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
+    if (this.toastTimer) clearTimeout(this.toastTimer);
   }
 
   expandedIds = new Set<number>();
 
-  // Hàm xử lý đóng/mở
-  toggleExpand(id: number) {
-    if (this.expandedIds.has(id)) {
-      this.expandedIds.delete(id);
-    } else {
-      this.expandedIds.add(id);
-    }
+  toggleExpand = (id: number) => {
+    if (this.expandedIds.has(id)) this.expandedIds.delete(id);
+    else this.expandedIds.add(id);
+  };
+
+  isExpanded = (id: number) => {
+    return this.expandedIds.has(id);
+  };
+
+  showToastVisible = false;
+  toastMessage = '';
+
+  showToast(message: string, duration = 2000) {
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+
+    this.toastMessage = message;
+    this.showToastVisible = true;
+
+    this.toastTimer = setTimeout(() => {
+      this.showToastVisible = false;
+    }, duration);
   }
 
-  // Hàm kiểm tra trạng thái (dùng cho HTML)
-  isExpanded(id: number): boolean {
-    return this.expandedIds.has(id);
-  }
+  isSelected = (id: number) => {
+    return this.tempSelectedIds.has(id);
+  };
 }

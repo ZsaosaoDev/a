@@ -2,9 +2,21 @@
   <div class="overlay" (click)="onClose()"></div>
 
   <div class="sidebar-container">
-    <div class="sidebar-header">
+    <div
+      class="sidebar-header"
+      style="display: flex; align-items: center; justify-content: space-between"
+    >
       <h2 style="margin: 0; font-size: 1.25rem">Thông tin nhân viên</h2>
-      <button class="close-btn" (click)="onClose()">&times;</button>
+
+      <div style="display: flex; gap: 8px; align-items: center">
+        <button
+          class="close-btn"
+          (click)="onClose()"
+          style="background: none; border: none; font-size: 20px; cursor: pointer"
+        >
+          &times;
+        </button>
+      </div>
     </div>
 
     <div class="sidebar-body">
@@ -86,9 +98,13 @@
               </label>
             </div>
             <div class="tree-wrapper">
-              <ng-container
-                *ngTemplateOutlet="recursiveTree; context: { $implicit: allDepartments }"
-              ></ng-container>
+              <app-department-tree
+                [list]="allDepartments"
+                [isSelected]="isSelected"
+                [toggleSelection]="toggleSelection"
+                [isExpanded]="isExpanded"
+                [toggleExpand]="toggleExpand"
+              ></app-department-tree>
             </div>
           </div>
         </div>
@@ -111,38 +127,3 @@
     </div>
   </div>
 </div>
-
-<ng-template #recursiveTree let-list>
-  <div *ngFor="let node of list" class="tree-node">
-    <div class="node-row" style="display: flex; align-items: center; gap: 4px">
-      <span
-        *ngIf="node.children?.length"
-        (click)="toggleExpand(node.id)"
-        style="cursor: pointer; width: 20px; display: inline-block; text-align: center"
-      >
-        {{ isExpanded(node.id) ? '▼' : '▶' }}
-      </span>
-
-      <span *ngIf="!node.children?.length" style="width: 20px"></span>
-
-      <div class="node-label" (click)="toggleSelection(node.id)" style="flex: 1; cursor: pointer">
-        <input
-          type="checkbox"
-          [checked]="tempSelectedIds.has(node.id)"
-          (click)="$event.stopPropagation()"
-        />
-        <span style="margin-right: 8px">📂</span> {{ node.name }}
-      </div>
-    </div>
-
-    <div
-      class="node-children"
-      *ngIf="node.children?.length && isExpanded(node.id)"
-      style="margin-left: 20px"
-    >
-      <ng-container
-        *ngTemplateOutlet="recursiveTree; context: { $implicit: node.children }"
-      ></ng-container>
-    </div>
-  </div>
-</ng-template>
