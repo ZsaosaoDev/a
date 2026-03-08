@@ -79,6 +79,7 @@ export class StaffSidebarComponent implements OnInit, OnDestroy {
     this.tempSelectedIds.clear();
     this.searchText = '';
     let currentItems: any[] = [];
+
     if (type === 'manager') {
       currentItems = this.staff?.managers || [];
       this.showManagerPopup = true;
@@ -89,12 +90,25 @@ export class StaffSidebarComponent implements OnInit, OnDestroy {
       currentItems = this.staff?.departments || [];
       this.showDeptPopup = true;
     }
+
+    // Đổ dữ liệu vào Set cho TẤT CẢ các loại popup
     currentItems.forEach((item) => this.tempSelectedIds.add(item.id));
+
+    // Nếu là phòng ban thì mới tính toán mở rộng cây
+    if (type === 'dept') {
+      this.autoExpandSelectedDepts();
+    }
   }
 
-  toggleSelection(id: number) {
-    this.tempSelectedIds.has(id) ? this.tempSelectedIds.delete(id) : this.tempSelectedIds.add(id);
-  }
+  toggleSelection = (id: number) => {
+    if (this.tempSelectedIds.has(id)) {
+      this.tempSelectedIds.delete(id);
+    } else {
+      this.tempSelectedIds.add(id);
+    }
+    // Thêm dòng này để debug xem ID đã vào Set chưa
+    console.log('Current IDs:', Array.from(this.tempSelectedIds));
+  };
 
   get isAllSelected(): boolean {
     const list = this.filteredUsers;
@@ -203,4 +217,34 @@ export class StaffSidebarComponent implements OnInit, OnDestroy {
   isSelected = (id: number) => {
     return this.tempSelectedIds.has(id);
   };
+
+  private autoExpandSelectedDepts() {
+    this.expandedIds.clear();
+
+    const findAndExpand = (nodes: Department[]): boolean => {
+      let hasSelectedInFamily = false;
+
+      for (const node of nodes) {
+        let isAnyChildSelected = false;
+
+        if (node.children && node.children.length > 0) {
+          // Đệ quy để kiểm tra xem trong đám con cháu có đứa nào được chọn không
+          isAnyChildSelected = findAndExpand(node.children);
+        }
+
+        // QUAN TRỌNG: Chỉ mở node cha nếu có con/cháu bên trong được chọn
+        if (isAnyChildSelected) {
+          this.expandedIds.add(node.id);
+          hasSelectedInFamily = true;
+        }
+        // Nếu chính node này được chọn, báo cho cha nó biết để cha nó mở ra
+        else if (this.tempSelectedIds.has(node.id)) {
+          hasSelectedInFamily = true;
+        }
+      }
+      return hasSelectedInFamily;
+    };
+
+    findAndExpand(this.allDepartments);
+  }
 }
