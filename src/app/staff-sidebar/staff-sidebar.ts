@@ -1,10 +1,11 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { VSStaff, User, Department } from '../models/vsstaff';
 import { Vsstaff } from '../services/vsstaff';
 import { Subscription } from 'rxjs';
 import { DepartmentTreeComponent } from '../components/department-tree/department-tree';
+import { NgbActiveOffcanvas } from '@ng-bootstrap/ng-bootstrap';
 
 type StaffListType = 'managers' | 'departments' | 'users';
 
@@ -17,21 +18,20 @@ type StaffListType = 'managers' | 'departments' | 'users';
 })
 export class StaffSidebarComponent implements OnInit, OnDestroy {
   @Input() staffId!: number;
-  @Output() close = new EventEmitter<void>();
 
   staff: VSStaff | null = null;
   allUsers: User[] = [];
   allDepartments: Department[] = [];
   loading = false;
-  isClosing = false;
+
   showManagerPopup = false;
   showUserPopup = false;
   showDeptPopup = false;
   searchText = '';
   tempSelectedIds = new Set<number>();
-  private subscription = new Subscription();
+  expandedIds = new Set<number>();
 
-  private toastTimer: any;
+  private subscription = new Subscription();
 
   readonly sectionTypes: {
     key: StaffListType;
@@ -43,7 +43,10 @@ export class StaffSidebarComponent implements OnInit, OnDestroy {
     { key: 'users', label: 'Người dùng được sài', popup: 'user' },
   ];
 
-  constructor(private vsstaffService: Vsstaff) {}
+  constructor(
+    private vsstaffService: Vsstaff,
+    public activeOffcanvas: NgbActiveOffcanvas,
+  ) {}
 
   ngOnInit(): void {
     if (this.staffId) {
@@ -91,24 +94,25 @@ export class StaffSidebarComponent implements OnInit, OnDestroy {
       this.showDeptPopup = true;
     }
 
-    // Đổ dữ liệu vào Set cho TẤT CẢ các loại popup
     currentItems.forEach((item) => this.tempSelectedIds.add(item.id));
 
-    // Nếu là phòng ban thì mới tính toán mở rộng cây
     if (type === 'dept') {
       this.autoExpandSelectedDepts();
     }
   }
 
+  // Chuyển sang Arrow Function để không mất context 'this'
   toggleSelection = (id: number) => {
-    if (this.tempSelectedIds.has(id)) {
-      this.tempSelectedIds.delete(id);
-    } else {
-      this.tempSelectedIds.add(id);
-    }
-    // Thêm dòng này để debug xem ID đã vào Set chưa
-    console.log('Current IDs:', Array.from(this.tempSelectedIds));
+    this.tempSelectedIds.has(id) ? this.tempSelectedIds.delete(id) : this.tempSelectedIds.add(id);
   };
+
+  isSelected = (id: number) => this.tempSelectedIds.has(id);
+
+  toggleExpand = (id: number) => {
+    this.expandedIds.has(id) ? this.expandedIds.delete(id) : this.expandedIds.add(id);
+  };
+
+  isExpanded = (id: number) => this.expandedIds.has(id);
 
   get isAllSelected(): boolean {
     const list = this.filteredUsers;
@@ -150,7 +154,6 @@ export class StaffSidebarComponent implements OnInit, OnDestroy {
       const flatDepts = this.flattenDepts(this.allDepartments);
       this.staff.departments = flatDepts.filter((d) => this.tempSelectedIds.has(d.id));
     }
-    this.showToast('Cập nhật thành công ✅');
     this.closeAllPopups();
   }
 
@@ -179,72 +182,28 @@ export class StaffSidebarComponent implements OnInit, OnDestroy {
       this.staff[list] = (this.staff[list] as any[]).filter((item: any) => item.id !== id);
   }
 
-  onClose() {
-    this.isClosing = true;
-    setTimeout(() => this.close.emit(), 300);
-  }
-
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
-    if (this.toastTimer) clearTimeout(this.toastTimer);
-  }
-
-  expandedIds = new Set<number>();
-
-  toggleExpand = (id: number) => {
-    if (this.expandedIds.has(id)) this.expandedIds.delete(id);
-    else this.expandedIds.add(id);
-  };
-
-  isExpanded = (id: number) => {
-    return this.expandedIds.has(id);
-  };
-
-  showToastVisible = false;
-  toastMessage = '';
-
-  showToast(message: string, duration = 2000) {
-    if (this.toastTimer) clearTimeout(this.toastTimer);
-
-    this.toastMessage = message;
-    this.showToastVisible = true;
-
-    this.toastTimer = setTimeout(() => {
-      this.showToastVisible = false;
-    }, duration);
-  }
-
-  isSelected = (id: number) => {
-    return this.tempSelectedIds.has(id);
-  };
-
   private autoExpandSelectedDepts() {
     this.expandedIds.clear();
-
     const findAndExpand = (nodes: Department[]): boolean => {
       let hasSelectedInFamily = false;
-
       for (const node of nodes) {
         let isAnyChildSelected = false;
-
-        if (node.children && node.children.length > 0) {
-          // Đệ quy để kiểm tra xem trong đám con cháu có đứa nào được chọn không
+        if (node.children?.length) {
           isAnyChildSelected = findAndExpand(node.children);
         }
-
-        // QUAN TRỌNG: Chỉ mở node cha nếu có con/cháu bên trong được chọn
         if (isAnyChildSelected) {
           this.expandedIds.add(node.id);
           hasSelectedInFamily = true;
-        }
-        // Nếu chính node này được chọn, báo cho cha nó biết để cha nó mở ra
-        else if (this.tempSelectedIds.has(node.id)) {
+        } else if (this.tempSelectedIds.has(node.id)) {
           hasSelectedInFamily = true;
         }
       }
       return hasSelectedInFamily;
     };
-
     findAndExpand(this.allDepartments);
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 }

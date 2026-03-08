@@ -1,76 +1,6 @@
-/* Container chính & Animation */
-.sidebar-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1000;
-}
+/* --- Các class chính của Sidebar tự chế (Wrapper, Overlay, Container) ĐÃ XÓA --- */
 
-.overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  transition: opacity 300ms ease;
-}
-
-.sidebar-container {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 420px;
-  max-width: 90vw;
-  height: 100%;
-  background: #fff;
-  box-shadow: -5px 0 20px rgba(0, 0, 0, 0.15);
-  display: flex;
-  flex-direction: column;
-  animation: slideIn 300ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  will-change: transform;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-.is-closing .sidebar-container {
-  transform: translateX(100%);
-  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.is-closing .overlay {
-  opacity: 0;
-}
-
-/* Header & Body */
-.sidebar-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid #f0f0f0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.sidebar-body {
-  padding: 1.5rem;
-  overflow-y: auto;
-  flex: 1;
-}
-
-/* Sections */
-.section {
-  margin-bottom: 2rem;
-}
-
+/* 1. Sections & Typography */
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -78,71 +8,7 @@
   margin-bottom: 0.75rem;
 }
 
-.section h3 {
-  font-size: 13px;
-  color: #8c8c8c;
-  text-transform: uppercase;
-  margin: 0;
-  letter-spacing: 0.5px;
-}
-
-/* Popup & Search */
-.popup-container {
-  position: relative;
-}
-
-.add-btn {
-  background: #e6f7ff;
-  color: #1890ff;
-  border: 1px solid #91d5ff;
-  padding: 2px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.custom-popup {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  width: 250px;
-  background: #fff;
-  border-radius: 6px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  z-index: 100;
-  margin-top: 5px;
-  border: 1px solid #f0f0f0;
-}
-
-.search-input {
-  padding: 8px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.search-input input {
-  width: 100%;
-  padding: 6px;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
-  outline: none;
-}
-
-.popup-list {
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.popup-item {
-  padding: 8px 12px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.popup-item:hover {
-  background: #f5f5f5;
-}
-
-/* List items */
+/* 2. List items hiển thị mặc định (Dùng để hiển thị danh sách đã chọn) */
 .data-list {
   list-style: none;
   padding: 0;
@@ -152,146 +18,89 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #fafafa;
+  background: #f8f9fa;
   margin-bottom: 6px;
   padding: 8px 12px;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 14px;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s;
+}
+
+.list-item:hover {
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
 }
 
 .remove-icon {
-  color: #ff4d4f;
+  color: #dc3545;
   cursor: pointer;
-  font-weight: bold;
+  font-size: 18px;
+  line-height: 1;
 }
 
-.close-btn {
-  border: none;
-  background: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #bfbfbf;
-}
-
-/* Container bao bọc cây */
+/* 3. Tree Wrapper (Cấu trúc phòng ban) */
 .tree-wrapper {
-  margin-top: 10px;
   background: #ffffff;
-  border: 1px solid #e8e8e8;
-  border-radius: 4px;
-  padding: 10px;
-  max-height: 400px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 12px;
+  max-height: 350px;
   overflow-y: auto;
 }
 
-/* Layout chung cho vùng chọn */
-.filter-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  gap: 10px;
-}
-
-.select-all-label {
-  display: flex;
-  align-items: center;
-  font-size: 0.9rem;
-  cursor: pointer;
-  color: #007bff;
-  white-space: nowrap;
-}
-
-/* Tùy chỉnh Checkbox */
-input[type='checkbox'] {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-  accent-color: #007bff; /* Đổi màu checkbox sang xanh dương */
-  margin-right: 8px;
-}
-
-/* Danh sách người dùng */
+/* 4. Selection List (Dùng trong popup chọn Manager/User) */
 .selection-list {
   max-height: 300px;
   overflow-y: auto;
-  border: 1px solid #eee;
+  border: 1px solid #dee2e6;
   border-radius: 6px;
+  background: #fff;
 }
 
 .selection-item {
   display: flex;
   align-items: center;
   padding: 10px 12px;
-  border-bottom: 1px solid #f9f9f9;
+  border-bottom: 1px solid #f1f3f5;
   cursor: pointer;
   transition: background 0.2s;
 }
 
+.selection-item:last-child {
+  border-bottom: none;
+}
+
 .selection-item:hover {
-  background-color: #f0f7ff;
+  background-color: #e7f1ff;
 }
 
-.selection-item small {
-  color: #999;
-  margin-left: 5px;
-}
-
-/* Nút bấm OK và Hủy */
-.btn-group {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-ok {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 6px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.btn-ok:hover {
-  background-color: #218838;
-}
-
-.btn-cancel {
-  background-color: #6c757d;
-  color: white;
-  border: none;
-  padding: 6px 15px;
-  border-radius: 4px;
+/* 5. Utility Classes */
+.cursor-pointer {
   cursor: pointer;
 }
 
-/* Cấu trúc cây (Tree) */
-.tree-node {
-  margin-left: 15px;
+.italic {
+  font-style: italic;
 }
 
-.node-label {
-  display: flex;
-  align-items: center;
-  padding: 6px 0;
-  cursor: pointer;
+/* Tùy chỉnh thanh cuộn cho mượt */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #bbb;
 }
 
-.node-label:hover {
-  color: #007bff;
-}
-
-.node-children {
-  border-left: 1px dashed #ddd;
-  padding-left: 10px;
-}
-
-/* Style cho Sidebar (nếu chưa có) */
-.popup-mode {
-  background: #fdfdfd;
-  border: 1px solid #e0e0e0;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+/* Đè lại một chút style của Bootstrap Offcanvas nếu muốn rộng hơn */
+:host {
+  display: block;
 }

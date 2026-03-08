@@ -1,129 +1,150 @@
-<div class="sidebar-wrapper" [class.is-closing]="isClosing">
-  <div class="overlay" (click)="onClose()"></div>
+<div class="offcanvas-header border-bottom bg-light">
+  <h5 class="offcanvas-title fw-bold">Thông tin nhân viên</h5>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Close"
+    (click)="activeOffcanvas.dismiss()"
+  ></button>
+</div>
 
-  <div class="sidebar-container">
-    <div
-      class="sidebar-header"
-      style="display: flex; align-items: center; justify-content: space-between"
-    >
-      <h2 style="margin: 0; font-size: 1.25rem">Thông tin nhân viên</h2>
+<div class="offcanvas-body">
+  <div *ngIf="loading" class="d-flex flex-column align-items-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <span class="mt-2 text-muted">Đang tải dữ liệu...</span>
+  </div>
 
-      <div style="display: flex; gap: 8px; align-items: center">
-        <button
-          class="close-btn"
-          (click)="onClose()"
-          style="background: none; border: none; font-size: 20px; cursor: pointer"
+  <div *ngIf="!loading && staff">
+    <div class="mb-4" *ngIf="!showManagerPopup && !showUserPopup && !showDeptPopup">
+      <label class="text-muted small fw-bold text-uppercase italic">Họ và tên</label>
+      <div class="fs-5 fw-bold text-primary">{{ staff.name }}</div>
+    </div>
+
+    <div class="card shadow-sm mb-3 border-primary" *ngIf="showManagerPopup || showUserPopup">
+      <div
+        class="card-header d-flex justify-content-between align-items-center bg-primary text-white py-2"
+      >
+        <span class="fw-bold">Chọn {{ showManagerPopup ? 'Quản lý' : 'Người dùng' }}</span>
+        <div class="btn-group btn-group-sm">
+          <button
+            class="btn btn-light btn-sm fw-bold"
+            (click)="confirmSelection(showManagerPopup ? 'managers' : 'users')"
+          >
+            Xác nhận
+          </button>
+          <button class="btn btn-outline-light btn-sm" (click)="closeAllPopups()">Hủy</button>
+        </div>
+      </div>
+      <div class="card-body p-2">
+        <div class="input-group input-group-sm mb-2">
+          <input
+            type="text"
+            [(ngModel)]="searchText"
+            class="form-control"
+            placeholder="Tìm kiếm tên hoặc ID..."
+          />
+          <div class="input-group-text">
+            <input
+              type="checkbox"
+              class="form-check-input mt-0"
+              [checked]="isAllSelected"
+              (change)="toggleSelectAll()"
+            />
+            <small class="ms-1">Tất cả</small>
+          </div>
+        </div>
+        <div class="list-group list-group-flush overflow-auto" style="max-height: 400px">
+          <label
+            class="list-group-item list-group-item-action d-flex align-items-center py-2 cursor-pointer"
+            *ngFor="let user of filteredUsers"
+          >
+            <input
+              type="checkbox"
+              class="form-check-input me-3"
+              [checked]="tempSelectedIds.has(user.id)"
+              (change)="toggleSelection(user.id)"
+            />
+            <span
+              >{{ user.name }} <small class="text-muted">#{{ user.id }}</small></span
+            >
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm mb-3 border-success" *ngIf="showDeptPopup">
+      <div
+        class="card-header d-flex justify-content-between align-items-center bg-success text-white py-2"
+      >
+        <span class="fw-bold">Chọn phòng ban</span>
+        <div class="btn-group btn-group-sm">
+          <button class="btn btn-light btn-sm fw-bold" (click)="confirmSelection('departments')">
+            Xác nhận
+          </button>
+          <button class="btn btn-outline-light btn-sm" (click)="closeAllPopups()">Hủy</button>
+        </div>
+      </div>
+      <div class="card-body p-2">
+        <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+          <small class="text-muted fw-bold">CƠ CẤU TỔ CHỨC</small>
+          <label class="small cursor-pointer text-success">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [checked]="isAllDeptsSelected"
+              (change)="toggleSelectAllDepts()"
+            />
+            Chọn hết
+          </label>
+        </div>
+        <div
+          class="border rounded p-2 overflow-auto"
+          style="max-height: 400px; background: #fdfdfd"
         >
-          &times;
-        </button>
+          <app-department-tree
+            [list]="allDepartments"
+            [isSelected]="isSelected"
+            [toggleSelection]="toggleSelection"
+            [isExpanded]="isExpanded"
+            [toggleExpand]="toggleExpand"
+          ></app-department-tree>
+        </div>
       </div>
     </div>
 
-    <div class="sidebar-body">
-      <div *ngIf="loading" style="text-align: center; padding: 20px">Đang tải...</div>
-
-      <div *ngIf="!loading && staff">
-        <div class="section" *ngIf="!showManagerPopup && !showUserPopup && !showDeptPopup">
-          <h3>Họ và tên</h3>
-          <p style="font-size: 1.1rem; margin-top: 8px">
-            <strong>{{ staff.name }}</strong>
-          </p>
+    <ng-container *ngIf="!showManagerPopup && !showUserPopup && !showDeptPopup">
+      <div class="mb-4" *ngFor="let sec of sectionTypes">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="mb-0 fw-bold text-secondary">{{ sec.label }}</h6>
+          <button
+            class="btn btn-xs btn-outline-primary py-0 px-2"
+            (click)="openPopup(sec.popup)"
+            style="font-size: 0.8rem"
+          >
+            + Thêm
+          </button>
         </div>
-
-        <div class="section popup-mode" *ngIf="showManagerPopup || showUserPopup">
-          <div class="section-header">
-            <h3>Chọn {{ showManagerPopup ? 'Quản lý' : 'Người dùng' }}</h3>
-            <div class="btn-group">
-              <button
-                class="btn-ok"
-                (click)="confirmSelection(showManagerPopup ? 'managers' : 'users')"
-              >
-                Xác nhận
-              </button>
-              <button class="btn-cancel" (click)="closeAllPopups()">Hủy</button>
-            </div>
+        <div class="list-group shadow-sm">
+          <div
+            *ngIf="!staff[sec.key]?.length"
+            class="list-group-item small text-muted italic text-center py-3"
+          >
+            Chưa có dữ liệu
           </div>
-          <div class="edit-mode-container">
-            <div class="filter-bar">
-              <input
-                type="text"
-                [(ngModel)]="searchText"
-                placeholder="Tìm kiếm..."
-                class="search-box"
-                style="flex: 1"
-                autofocus
-              />
-              <label class="select-all-label">
-                <input type="checkbox" [checked]="isAllSelected" (change)="toggleSelectAll()" />
-                Chọn tất cả
-              </label>
-            </div>
-            <div class="selection-list">
-              <div
-                class="selection-item"
-                *ngFor="let user of filteredUsers"
-                (click)="toggleSelection(user.id)"
-              >
-                <input
-                  type="checkbox"
-                  [checked]="tempSelectedIds.has(user.id)"
-                  (click)="$event.stopPropagation()"
-                />
-                <span
-                  >{{ user.name }} <small>#{{ user.id }}</small></span
-                >
-              </div>
-            </div>
+          <div
+            class="list-group-item d-flex justify-content-between align-items-center py-2 shadow-hover"
+            *ngFor="let item of staff[sec.key]"
+          >
+            <span class="small font-medium">{{ item.name }}</span>
+            <button
+              class="btn btn-link btn-sm text-danger p-0"
+              (click)="removeItem(sec.key, item.id)"
+            >
+              <i class="bi bi-x-circle-fill">&times;</i>
+            </button>
           </div>
         </div>
-
-        <div class="section popup-mode" *ngIf="showDeptPopup">
-          <div class="section-header">
-            <h3>Chọn phòng ban</h3>
-            <div class="btn-group">
-              <button class="btn-ok" (click)="confirmSelection('departments')">Xác nhận</button>
-              <button class="btn-cancel" (click)="closeAllPopups()">Hủy</button>
-            </div>
-          </div>
-          <div class="edit-mode-container">
-            <div class="filter-bar">
-              <span style="font-size: 13px; font-weight: bold">Cấu trúc tổ chức</span>
-              <label class="select-all-label">
-                <input
-                  type="checkbox"
-                  [checked]="isAllDeptsSelected"
-                  (change)="toggleSelectAllDepts()"
-                />
-                Chọn tất cả cây
-              </label>
-            </div>
-            <div class="tree-wrapper">
-              <app-department-tree
-                [list]="allDepartments"
-                [isSelected]="isSelected"
-                [toggleSelection]="toggleSelection"
-                [isExpanded]="isExpanded"
-                [toggleExpand]="toggleExpand"
-              ></app-department-tree>
-            </div>
-          </div>
-        </div>
-
-        <ng-container *ngIf="!showManagerPopup && !showUserPopup && !showDeptPopup">
-          <div class="section" *ngFor="let sec of sectionTypes">
-            <div class="section-header">
-              <h3>{{ sec.label }}</h3>
-              <button class="add-btn" (click)="openPopup(sec.popup)">+ Thêm</button>
-            </div>
-            <div class="data-list">
-              <div class="list-item" *ngFor="let item of staff[sec.key]">
-                <span>{{ item.name }}</span>
-                <span class="remove-icon" (click)="removeItem(sec.key, item.id)">&times;</span>
-              </div>
-            </div>
-          </div>
-        </ng-container>
       </div>
-    </div>
+    </ng-container>
   </div>
 </div>
